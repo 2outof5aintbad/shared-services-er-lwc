@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Global Care Intelligence — live case map for Coca-Cola Consumer Care leadership</description>
+    <flexiPageType>AppPage</flexiPageType>
+    <masterLabel>Global Care Intelligence</masterLabel>
+    <template>
+        <name>c:globalCaseMap</name>
+    </template>
+    <regions>
+        <name>main</name>
+        <mode>append</mode>
+    </regions>
+    <flexiPageRegions>
+        <itemInstances>
+            <componentInstance>
+                <componentName>c:globalCaseMap</componentName>
+                <visibilityRule>
+                    <booleanFilter/>
+                    <criteria/>
+                </visibilityRule>
+            </componentInstance>
+        </itemInstances>
+        <mode>append</mode>
+        <name>main</name>
+        <type>Region</type>
+    </flexiPageRegions>
+</FlexiPage>

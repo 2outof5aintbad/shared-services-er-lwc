@@ -1,0 +1,52 @@
+:host { display: block; }
+
+.er-app {
+    font-family: 'Salesforce Sans', Arial, sans-serif;
+    background: #f3f2f2;
+    min-height: 100vh;
+}
+
+.er-header {
+    background: linear-gradient(135deg, #990000 0%, #E70D0D 100%);
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+}
+.er-badge {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    margin-bottom: 0.35rem;
+    display: inline-block;
+}
+.er-title {
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0.15rem 0 0.1rem;
+}
+.er-subtitle {
+    color: rgba(255,255,255,0.72);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.er-body {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem 1.25rem 2rem;
+    align-items: flex-start;
+}
+.er-left {
+    flex: 1 1 0;
+    min-width: 0;
+}
+.er-right {
+    width: 360px;
+    flex-shrink: 0;
+}

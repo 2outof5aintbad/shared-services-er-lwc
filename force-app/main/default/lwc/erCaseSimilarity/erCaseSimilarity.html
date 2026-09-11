@@ -1,0 +1,19 @@
+<template>
+    <div class="er-app">
+        <div class="er-header">
+            <div class="er-header-left">
+                <span class="er-badge">ER / Ethics</span>
+                <h1 class="er-title">Case Similarity Search</h1>
+                <p class="er-subtitle">CCBSS Employee Relations &amp; Ethics — Powered by Salesforce</p>
+            </div>
+        </div>
+        <div class="er-body">
+            <div class="er-left">
+                <c-er-case-search onresultschange={handleResultsChange}></c-er-case-search>
+            </div>
+            <div class="er-right">
+                <c-er-case-summary results={results} selected-case={selectedCase} insight-summary={insightSummary}></c-er-case-summary>
+            </div>
+        </div>
+    </div>
+</template>

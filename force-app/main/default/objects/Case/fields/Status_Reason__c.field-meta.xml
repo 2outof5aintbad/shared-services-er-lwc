@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Status_Reason__c</fullName>
+    <label>Status Reason</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Investigation Completed</fullName><default>false</default></value>
+            <value><fullName>No Violation Found</fullName><default>false</default></value>
+            <value><fullName>Referred to Legal</fullName><default>false</default></value>
+            <value><fullName>Pending Investigation</fullName><default>false</default></value>
+            <value><fullName>Withdrawn by Reporter</fullName><default>false</default></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

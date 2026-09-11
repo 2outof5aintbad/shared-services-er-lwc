@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>CCBSS ER Case Similarity Search</description>
+    <masterLabel>CCBSS ER Case Search</masterLabel>
+    <pageTemplate>AppPage_Default</pageTemplate>
+    <type>AppPage</type>
+    <flexiPageRegions>
+        <name>main</name>
+        <type>Region</type>
+        <items>
+            <componentName>c:erCaseSimilarity</componentName>
+            <type>Component</type>
+        </items>
+    </flexiPageRegions>
+</FlexiPage>

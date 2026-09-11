@@ -1,0 +1,472 @@
+<template>
+
+    <!-- HEADER -->
+    <div class="ko-header">
+        <img src={logoUrl} alt="Coca-Cola" class="ko-logo-img" />
+        <div class="ko-header-divider"></div>
+        <span class="ko-header-product">KO Refresh · Bottler Analytics</span>
+        <div class="ko-header-right">
+            <span class="ko-last-updated">Last updated: Jun 2026</span>
+            <span class="ko-period-badge">Q2 FY2026</span>
+        </div>
+    </div>
+
+    <!-- TOOLBAR: TABS + REGION FILTER -->
+    <div class="ko-toolbar">
+        <div class="ko-tabs">
+            <template for:each={tabs} for:item="tab">
+                <button key={tab.id} class={tab.cssClass} data-tab={tab.id} onclick={handleTabClick}>
+                    {tab.label}
+                </button>
+            </template>
+        </div>
+        <div class="ko-toolbar-sep"></div>
+        <span class="ko-filter-label">Region</span>
+        <div class="ko-filter-pills">
+            <template for:each={regionPills} for:item="pill">
+                <button key={pill.id} class={pill.cssClass} data-region={pill.id} onclick={handleRegionClick}>
+                    {pill.label}
+                </button>
+            </template>
+        </div>
+    </div>
+
+    <!-- BOTTLER FILTER BAR -->
+    <div class="ko-bottler-bar">
+        <span class="ko-filter-label">Bottler</span>
+        <input
+            type="text"
+            class="ko-bottler-search"
+            placeholder="Search bottlers…"
+            value={bottlerSearch}
+            oninput={handleBottlerSearch}
+        />
+        <div class="ko-bottler-pills">
+            <template for:each={filteredBottlers} for:item="b">
+                <button key={b.id} class={b.cssClass} data-id={b.id} onclick={handleBottlerClick}>
+                    {b.name}
+                </button>
+            </template>
+        </div>
+        <button class={mapToggleBtnClass} onclick={handleMapToggle}>
+            <span class="map-btn-icon">⊞</span> Bottler Map
+        </button>
+    </div>
+
+    <!-- ══ EOL CLEARANCE ══ -->
+    <template if:true={isEol}>
+        <div class="ko-content">
+
+            <!-- MAP VIEW -->
+            <template if:true={showMap}>
+                <div class="map-panel">
+                    <div class="map-breadcrumb">
+                        <template if:true={showMapBack}>
+                            <button class="map-back-btn" onclick={handleMapBack}>← All Regions</button>
+                            <span class="map-breadcrumb-sep">/</span>
+                        </template>
+                        <span class="map-breadcrumb-loc">{mapBreadcrumb}</span>
+                        <template if:true={showMapBack}>
+                            <span class="map-drill-hint">Click a state to select bottler</span>
+                        </template>
+                        <template if:false={showMapBack}>
+                            <span class="map-drill-hint">Click a region to zoom in</span>
+                        </template>
+                    </div>
+                    <div class="map-container" data-mapid="eol">
+                        <template if:true={showMapBack}>
+                            <button class="map-zoom-out-btn" onclick={handleMapBack}>↩ Zoom Out</button>
+                        </template>
+                        <template if:true={mapTooltip}>
+                            <div class="map-tooltip" style={mapTooltipStyle}>
+                                <div class="map-tt-name">{mapTooltip.name}</div>
+                                <div class="map-tt-territory">{mapTooltip.territory}</div>
+                                <div class="map-tt-metrics">
+                                    <div class="map-tt-metric">
+                                        <span class="map-tt-lbl">{mapTooltip.m1label}</span>
+                                        <span class="map-tt-val">{mapTooltip.m1val}</span>
+                                    </div>
+                                    <div class="map-tt-metric">
+                                        <span class="map-tt-lbl">{mapTooltip.m2label}</span>
+                                        <span class="map-tt-val">{mapTooltip.m2val}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="map-legend">
+                        <span class="map-legend-label">Recovery Rate</span>
+                        <div class="map-legend-bar"></div>
+                        <span class="map-legend-lo">Low</span>
+                        <span class="map-legend-hi">High</span>
+                    </div>
+                </div>
+            </template>
+
+            <div class="kpi-strip">
+                <div class="kpi-card">
+                    <div class="kpi-label">Revenue Recovery Rate</div>
+                    <div class="kpi-value kpi-red">{kpiRecovery}</div>
+                    <div class="kpi-delta"><span class="delta-pos">↑ from 55%</span> at launch</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Margin Preserved (Q2)</div>
+                    <div class="kpi-value kpi-red">{kpiMargin}</div>
+                    <div class="kpi-delta">Discount revenue vs. destruction cost</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Avg Days EOL on Hand</div>
+                    <div class="kpi-value">{kpiDays}</div>
+                    <div class="kpi-delta"><span class="delta-pos">↓ 57%</span> from 45 days at launch</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Waste Write-Downs (Q2)</div>
+                    <div class="kpi-value">{kpiShrink}</div>
+                    <div class="kpi-delta"><span class="delta-pos">↓ 83%</span> vs. pre-program baseline</div>
+                </div>
+            </div>
+
+            <template if:true={showCharts}>
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Revenue Recovery Rate</div>
+                            <div class="chart-subtitle">% of EOL inventory sold vs. written off — Jan–Jun 2026</div>
+                        </div>
+                        <div class="chart-badge chart-badge-red">{kpiRecovery}</div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas data-chartid="eol_trend"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Revenue Recovered vs. Cost Avoided</div>
+                            <div class="chart-subtitle">Discount sale proceeds vs. destruction &amp; disposal fees — Q2 2026</div>
+                        </div>
+                        <div class="chart-badge chart-badge-red">{kpiMargin}</div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas data-chartid="eol_margin"></canvas>
+                    </div>
+                </div>
+            </div>
+            </template>
+
+        </div>
+    </template>
+
+    <!-- ══ TRUCK OPTIMIZATION ══ -->
+    <template if:true={isTruck}>
+        <div class="ko-content">
+
+            <template if:true={showMap}>
+                <div class="map-panel">
+                    <div class="map-breadcrumb">
+                        <template if:true={showMapBack}>
+                            <button class="map-back-btn" onclick={handleMapBack}>← All Regions</button>
+                            <span class="map-breadcrumb-sep">/</span>
+                        </template>
+                        <span class="map-breadcrumb-loc">{mapBreadcrumb}</span>
+                        <template if:true={showMapBack}>
+                            <span class="map-drill-hint">Click a state to select bottler</span>
+                        </template>
+                        <template if:false={showMapBack}>
+                            <span class="map-drill-hint">Click a region to zoom in</span>
+                        </template>
+                    </div>
+                    <div class="map-container" data-mapid="truck">
+                        <template if:true={showMapBack}>
+                            <button class="map-zoom-out-btn" onclick={handleMapBack}>↩ Zoom Out</button>
+                        </template>
+                        <template if:true={mapTooltip}>
+                            <div class="map-tooltip" style={mapTooltipStyle}>
+                                <div class="map-tt-name">{mapTooltip.name}</div>
+                                <div class="map-tt-territory">{mapTooltip.territory}</div>
+                                <div class="map-tt-metrics">
+                                    <div class="map-tt-metric">
+                                        <span class="map-tt-lbl">{mapTooltip.m1label}</span>
+                                        <span class="map-tt-val">{mapTooltip.m1val}</span>
+                                    </div>
+                                    <div class="map-tt-metric">
+                                        <span class="map-tt-lbl">{mapTooltip.m2label}</span>
+                                        <span class="map-tt-val">{mapTooltip.m2val}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="map-legend">
+                        <span class="map-legend-label">Load Rate</span>
+                        <div class="map-legend-bar"></div>
+                        <span class="map-legend-lo">Low</span>
+                        <span class="map-legend-hi">High</span>
+                    </div>
+                </div>
+            </template>
+
+            <div class="kpi-strip">
+                <div class="kpi-card">
+                    <div class="kpi-label">Load Optimization Rate</div>
+                    <div class="kpi-value kpi-red">{kpiLoad}</div>
+                    <div class="kpi-delta"><span class="delta-pos">↑ from 71%</span> at launch</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Cost Per Delivery</div>
+                    <div class="kpi-value kpi-red">{kpiCpd}</div>
+                    <div class="kpi-delta"><span class="delta-pos">↓ 36%</span> from $1.69 at launch</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Deliveries Per Route</div>
+                    <div class="kpi-value">{kpiDrops}</div>
+                    <div class="kpi-delta"><span class="delta-pos">+88%</span> density vs. pre-program</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">CO2 Reduction YTD</div>
+                    <div class="kpi-value">{kpiCo2}</div>
+                    <div class="kpi-delta">ESG score: <strong>91/100</strong></div>
+                </div>
+            </div>
+
+            <template if:true={showCharts}>
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Load Optimization Rate</div>
+                            <div class="chart-subtitle">% of truck capacity utilized per route — Jan–Jun 2026</div>
+                        </div>
+                        <div class="chart-badge chart-badge-red">{kpiLoad}</div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas data-chartid="truck_load"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Cost Per Delivery</div>
+                            <div class="chart-subtitle">Average delivery cost per drop — Jan–Jun 2026</div>
+                        </div>
+                        <div class="chart-badge chart-badge-red">{kpiCpd}</div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas data-chartid="truck_cpd"></canvas>
+                    </div>
+                </div>
+            </div>
+            </template>
+
+        </div>
+    </template>
+
+    <!-- ══ CUSTOMER LOYALTY ══ -->
+    <template if:true={isLoyalty}>
+        <div class="ko-content">
+
+            <template if:true={showMap}>
+                <div class="map-panel">
+                    <div class="map-breadcrumb">
+                        <template if:true={showMapBack}>
+                            <button class="map-back-btn" onclick={handleMapBack}>← All Regions</button>
+                            <span class="map-breadcrumb-sep">/</span>
+                        </template>
+                        <span class="map-breadcrumb-loc">{mapBreadcrumb}</span>
+                        <template if:true={showMapBack}>
+                            <span class="map-drill-hint">Click a state to select bottler</span>
+                        </template>
+                        <template if:false={showMapBack}>
+                            <span class="map-drill-hint">Click a region to zoom in</span>
+                        </template>
+                    </div>
+                    <div class="map-container" data-mapid="loyalty">
+                        <template if:true={showMapBack}>
+                            <button class="map-zoom-out-btn" onclick={handleMapBack}>↩ Zoom Out</button>
+                        </template>
+                        <template if:true={mapTooltip}>
+                            <div class="map-tooltip" style={mapTooltipStyle}>
+                                <div class="map-tt-name">{mapTooltip.name}</div>
+                                <div class="map-tt-territory">{mapTooltip.territory}</div>
+                                <div class="map-tt-metrics">
+                                    <div class="map-tt-metric">
+                                        <span class="map-tt-lbl">{mapTooltip.m1label}</span>
+                                        <span class="map-tt-val">{mapTooltip.m1val}</span>
+                                    </div>
+                                    <div class="map-tt-metric">
+                                        <span class="map-tt-lbl">{mapTooltip.m2label}</span>
+                                        <span class="map-tt-val">{mapTooltip.m2val}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="map-legend">
+                        <span class="map-legend-label">Retention Rate</span>
+                        <div class="map-legend-bar"></div>
+                        <span class="map-legend-lo">Low</span>
+                        <span class="map-legend-hi">High</span>
+                    </div>
+                </div>
+            </template>
+
+            <div class="kpi-strip">
+                <div class="kpi-card">
+                    <div class="kpi-label">Retention — On Program</div>
+                    <div class="kpi-value kpi-red">{kpiRetention}</div>
+                    <div class="kpi-delta"><span class="delta-pos">+19 pts</span> vs. standard-only bottlers</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Net Promoter Score</div>
+                    <div class="kpi-value kpi-red">{kpiNps}</div>
+                    <div class="kpi-delta"><span class="delta-pos">↑ +21 pts</span> since Q3 FY2024</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Clearance Deal Adoption</div>
+                    <div class="kpi-value">{kpiAdoption}</div>
+                    <div class="kpi-delta"><span class="delta-pos">↑ from 14%</span> at launch</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Retention — Standard Only</div>
+                    <div class="kpi-value kpi-muted">76%</div>
+                    <div class="kpi-delta">Baseline — not on program</div>
+                </div>
+            </div>
+
+            <template if:true={showCharts}>
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Retention Rate — On Program vs. Standard Only</div>
+                            <div class="chart-subtitle">The gap widens every quarter</div>
+                        </div>
+                        <div class="chart-badge chart-badge-red">+19 pt gap</div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas data-chartid="loyalty_retention"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Net Promoter Score</div>
+                            <div class="chart-subtitle">Quarter over quarter since program launch — bottler app experience</div>
+                        </div>
+                        <div class="chart-badge chart-badge-red">{kpiNps} NPS</div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas data-chartid="loyalty_nps"></canvas>
+                    </div>
+                </div>
+            </div>
+            </template>
+
+        </div>
+    </template>
+
+    <!-- ══ INVENTORY BALANCE ══ -->
+    <template if:true={isInventory}>
+        <div class="ko-content">
+
+            <template if:true={showMap}>
+                <div class="map-panel">
+                    <div class="map-breadcrumb">
+                        <template if:true={showMapBack}>
+                            <button class="map-back-btn" onclick={handleMapBack}>← All Regions</button>
+                            <span class="map-breadcrumb-sep">/</span>
+                        </template>
+                        <span class="map-breadcrumb-loc">{mapBreadcrumb}</span>
+                        <template if:true={showMapBack}>
+                            <span class="map-drill-hint">Click a state to select bottler</span>
+                        </template>
+                        <template if:false={showMapBack}>
+                            <span class="map-drill-hint">Click a region to zoom in</span>
+                        </template>
+                    </div>
+                    <div class="map-container" data-mapid="inventory">
+                        <template if:true={showMapBack}>
+                            <button class="map-zoom-out-btn" onclick={handleMapBack}>↩ Zoom Out</button>
+                        </template>
+                        <template if:true={mapTooltip}>
+                            <div class="map-tooltip" style={mapTooltipStyle}>
+                                <div class="map-tt-name">{mapTooltip.name}</div>
+                                <div class="map-tt-territory">{mapTooltip.territory}</div>
+                                <div class="map-tt-metrics">
+                                    <div class="map-tt-metric">
+                                        <span class="map-tt-lbl">{mapTooltip.m1label}</span>
+                                        <span class="map-tt-val">{mapTooltip.m1val}</span>
+                                    </div>
+                                    <div class="map-tt-metric">
+                                        <span class="map-tt-lbl">{mapTooltip.m2label}</span>
+                                        <span class="map-tt-val">{mapTooltip.m2val}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="map-legend">
+                        <span class="map-legend-label">Days of Supply</span>
+                        <div class="map-legend-bar"></div>
+                        <span class="map-legend-lo">Low</span>
+                        <span class="map-legend-hi">High</span>
+                    </div>
+                </div>
+            </template>
+
+            <div class="kpi-strip">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Inventory Value</div>
+                    <div class="kpi-value kpi-red">{kpiInvValue}</div>
+                    <div class="kpi-delta">Across all active bottlers</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Days of Supply</div>
+                    <div class="kpi-value">{kpiInvDays}</div>
+                    <div class="kpi-delta">Target: <strong>18 days</strong></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Overstock Exposure</div>
+                    <div class="kpi-value kpi-red">{kpiOverstock}</div>
+                    <div class="kpi-delta">Inventory above 25-day threshold</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Pending Orders</div>
+                    <div class="kpi-value kpi-red">{kpiPending}</div>
+                    <div class="kpi-delta">{invBuyOpportunity}</div>
+                </div>
+            </div>
+
+            <template if:true={showCharts}>
+            <div class="chart-row">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">SKU Mix by Bottler</div>
+                            <div class="chart-subtitle">% share of inventory value — CSD, Water, Energy, Juice</div>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas data-chartid="inv_mix"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Days of Supply — Trend &amp; Forecast</div>
+                            <div class="chart-subtitle">6-month history + 3-month forward projection · reorder at 18 days</div>
+                        </div>
+                        <div class="chart-badge chart-badge-red">{kpiInvDays}</div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas data-chartid="inv_days"></canvas>
+                    </div>
+                </div>
+            </div>
+            </template>
+
+        </div>
+    </template>
+
+</template>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Level_of_Corrective_Action__c</fullName>
+    <label>Level of Corrective Action</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Level 1 - Verbal Warning</fullName><default>false</default></value>
+            <value><fullName>Level 2 - Written Warning</fullName><default>false</default></value>
+            <value><fullName>Level 3 - Final Written Warning</fullName><default>false</default></value>
+            <value><fullName>Level 4 - Termination</fullName><default>false</default></value>
+            <value><fullName>No Action Required</fullName><default>false</default></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Bottler_Category__c</fullName>
+    <label>Bottler Category</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Code of Business Conduct (ER)</fullName><default>false</default></value>
+            <value><fullName>Harassment / Discrimination</fullName><default>false</default></value>
+            <value><fullName>Workplace Violence</fullName><default>false</default></value>
+            <value><fullName>Substance Policy Violation</fullName><default>false</default></value>
+            <value><fullName>Data Privacy / Misuse</fullName><default>false</default></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

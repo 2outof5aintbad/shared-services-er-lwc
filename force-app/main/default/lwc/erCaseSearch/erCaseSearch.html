@@ -1,0 +1,205 @@
+<template>
+    <div class="search-card">
+
+        <!-- Search input row -->
+        <div class="search-input-row">
+            <div class="search-input-wrap">
+                <lightning-icon icon-name="utility:search" size="x-small" class="search-icon"></lightning-icon>
+                <input
+                    type="text"
+                    class="search-input"
+                    placeholder={searchPlaceholder}
+                    value={searchTerm}
+                    oninput={handleSearchInput}
+                    onkeydown={handleKeyDown}
+                />
+                <template lwc:if={isSearching}>
+                    <div class="search-spinner"></div>
+                </template>
+            </div>
+            <button class="filter-toggle-btn" onclick={toggleFilters} title="Filters">
+                <lightning-icon icon-name="utility:filterList" size="x-small"></lightning-icon>
+                <template lwc:if={activeFilterCount}>
+                    <span class="filter-badge">{activeFilterCount}</span>
+                </template>
+            </button>
+        </div>
+
+        <!-- Mode + match logic row -->
+        <div class="mode-row">
+            <div class="toggle-group">
+                <label class="toggle-label">Mode</label>
+                <div class="toggle-pills">
+                    <template for:each={modeOptions} for:item="m">
+                        <button key={m.value} class={m.pillClass} data-value={m.value} onclick={handleModeChange}>
+                            <template lwc:if={m.isAI}>
+                                <lightning-icon icon-name="utility:einstein" size="xx-small" class="ai-icon"></lightning-icon>
+                            </template>
+                            {m.label}
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <template lwc:if={showMatchLogic}>
+                <div class="toggle-group">
+                    <label class="toggle-label">Match</label>
+                    <div class="toggle-pills">
+                        <button class={allPillClass} data-value="All" onclick={handleMatchLogicChange}>All</button>
+                        <button class={anyPillClass} data-value="Any" onclick={handleMatchLogicChange}>Any</button>
+                    </div>
+                </div>
+            </template>
+
+            <template lwc:if={isAIMode}>
+                <div class="slider-group">
+                    <label class="toggle-label">Threshold: <strong>{threshold}%</strong></label>
+                    <input type="range" min="50" max="100" step="5" value={threshold} class="slider" onchange={handleThresholdChange} />
+                </div>
+            </template>
+        </div>
+
+        <!-- Filter panel -->
+        <template lwc:if={showFilters}>
+            <div class="filter-panel">
+                <div class="filter-panel-header">
+                    <span class="filter-panel-title">Filters</span>
+                    <button class="filter-clear-btn" onclick={clearFilters}>Clear all</button>
+                </div>
+                <div class="filter-grid">
+
+                    <div class="filter-field">
+                        <label class="filter-label">Date Opened — From</label>
+                        <input type="date" class="filter-input" value={dateFrom} onchange={handleDateFrom} />
+                    </div>
+                    <div class="filter-field">
+                        <label class="filter-label">Date Opened — To</label>
+                        <input type="date" class="filter-input" value={dateTo} onchange={handleDateTo} />
+                    </div>
+
+                    <div class="filter-field">
+                        <label class="filter-label">Case Owner</label>
+                        <select class="filter-select" value={selectedOwner} onchange={handleOwnerChange}>
+                            <option value="">All Owners</option>
+                            <template for:each={ownerOptions} for:item="o">
+                                <option key={o.value} value={o.value}>{o.label}</option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="filter-field">
+                        <label class="filter-label">Status</label>
+                        <select class="filter-select" value={selectedStatus} onchange={handleStatusChange}>
+                            <option value="">All Statuses</option>
+                            <template for:each={statusOptions} for:item="s">
+                                <option key={s.value} value={s.value}>{s.label}</option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="filter-field">
+                        <label class="filter-label">Category</label>
+                        <select class="filter-select" value={selectedCategory} onchange={handleCategoryChange}>
+                            <option value="">All Categories</option>
+                            <template for:each={categoryOptions} for:item="c">
+                                <option key={c.value} value={c.value}>{c.label}</option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="filter-field">
+                        <label class="filter-label">Location</label>
+                        <select class="filter-select" value={selectedLocation} onchange={handleLocationChange}>
+                            <option value="">All Locations</option>
+                            <template for:each={locationOptions} for:item="l">
+                                <option key={l.value} value={l.value}>{l.label}</option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="filter-field filter-field-wide">
+                        <label class="filter-label">Corrective Action</label>
+                        <select class="filter-select" value={selectedAction} onchange={handleActionChange}>
+                            <option value="">All Actions</option>
+                            <template for:each={actionOptions} for:item="a">
+                                <option key={a.value} value={a.value}>{a.label}</option>
+                            </template>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </template>
+
+        <!-- Active filter chips -->
+        <template lwc:if={hasActiveFilters}>
+            <div class="filter-chips">
+                <template for:each={activeFilterChips} for:item="chip">
+                    <span key={chip.key} class="filter-chip">
+                        {chip.label}
+                        <button class="chip-remove" data-key={chip.key} onclick={removeFilter}>✕</button>
+                    </span>
+                </template>
+            </div>
+        </template>
+
+    </div>
+
+    <!-- Results -->
+    <template lwc:if={hasResults}>
+        <div class="results-header">
+            <span class="results-count">{resultCount} matching cases</span>
+            <template lwc:if={isAIMode}>
+                <span class="ai-badge">
+                    <lightning-icon icon-name="utility:einstein" size="xx-small"></lightning-icon>
+                    AI Similarity Active
+                </span>
+            </template>
+            <template lwc:else>
+                <span class="results-mode-tag">{currentMode}</span>
+            </template>
+        </div>
+
+        <div class="results-list">
+            <template for:each={results} for:item="res">
+                <div key={res.id} class={res.cardClass} data-id={res.id} onclick={handleResultClick}>
+                    <div class="result-top">
+                        <div class="result-left">
+                            <span class="case-number">{res.caseNumber}</span>
+                            <span class="result-subject">{res.subject}</span>
+                        </div>
+                        <div class="result-right">
+                            <span class={res.statusBadgeClass}>{res.status}</span>
+                            <span class="created-date">{res.createdDate}</span>
+                        </div>
+                    </div>
+                    <div class="result-meta">
+                        <span class={res.actionBadgeClass}>{res.levelOfCorrectiveAction}</span>
+                        <template lwc:if={res.ownerName}>
+                            <span class="meta-sep">·</span>
+                            <span class="meta-owner">{res.ownerName}</span>
+                        </template>
+                        <template lwc:if={res.dateActionIssued}>
+                            <span class="meta-sep">·</span>
+                            <span class="meta-date">Action: {res.dateActionIssued}</span>
+                        </template>
+                    </div>
+                    <div class="result-ai-summary">
+                        <span class="result-ai-label">
+                            <lightning-icon icon-name="utility:einstein" size="xx-small"></lightning-icon>
+                            Agentforce Summary
+                        </span>
+                        <p class="result-ai-text">{res.aiSummary}</p>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <template lwc:if={showEmpty}>
+        <div class="empty-state">
+            <lightning-icon icon-name="utility:search" size="medium" class="empty-icon"></lightning-icon>
+            <p>No cases found. Try different keywords or adjust your filters.</p>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,179 @@
+<template>
+    <!-- Empty state -->
+    <template lwc:if={isEmpty}>
+        <div class="summary-empty">
+            <div class="summary-empty-icon">
+                <lightning-icon icon-name="utility:einstein" size="large"></lightning-icon>
+            </div>
+            <p class="summary-empty-title">AI Summary</p>
+            <p class="summary-empty-hint">Run a search to see an AI-generated summary of matching cases.</p>
+        </div>
+    </template>
+
+    <!-- Results summary -->
+    <template lwc:else>
+
+        <!-- AI Insight narrative -->
+        <template lwc:if={hasInsight}>
+            <div class="insight-card">
+                <div class="insight-header">
+                    <lightning-icon icon-name="utility:einstein" size="x-small"></lightning-icon>
+                    <span class="insight-title">Agentforce Summary</span>
+                </div>
+                <p class="insight-text">{insightSummary}</p>
+            </div>
+        </template>
+
+        <!-- Stats row -->
+        <div class="summary-card">
+            <div class="summary-header">
+                <lightning-icon icon-name="utility:chart" size="x-small"></lightning-icon>
+                <span class="summary-title">Case Analysis</span>
+                <span class="summary-count">{results.length} cases</span>
+            </div>
+            <div class="stat-row">
+                <div class="stat-tile">
+                    <span class="stat-value">{totalCount}</span>
+                    <span class="stat-label">Total Matches</span>
+                </div>
+                <div class="stat-tile">
+                    <span class="stat-value stat-red">{terminationCount}</span>
+                    <span class="stat-label">Terminations</span>
+                </div>
+                <div class="stat-tile">
+                    <span class="stat-value stat-green">{resolvedCount}</span>
+                    <span class="stat-label">Resolved</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Corrective action breakdown -->
+        <div class="summary-card">
+            <div class="section-label">Corrective Action Breakdown</div>
+            <template for:each={actionBreakdown} for:item="item">
+                <div key={item.label} class="bar-row">
+                    <span class="bar-label">{item.label}</span>
+                    <div class="bar-track">
+                        <div class="bar-fill" style={item.barStyle}></div>
+                    </div>
+                    <span class="bar-count">{item.count}</span>
+                </div>
+            </template>
+        </div>
+
+        <!-- Selected case detail -->
+        <template lwc:if={hasSelected}>
+            <div class="summary-card detail-card">
+                <div class="section-label">
+                    <lightning-icon icon-name="utility:record" size="xx-small"></lightning-icon>
+                    Case Detail
+                </div>
+
+                <div class="detail-case-header">
+                    <div>
+                        <div class="detail-case-number">{selectedCase.caseNumber}</div>
+                        <div class="detail-subject">{selectedCase.subject}</div>
+                    </div>
+                    <button class="view-record-btn" onclick={navigateToRecord} title="Open in Salesforce">
+                        <lightning-icon icon-name="utility:new_window" size="xx-small"></lightning-icon>
+                        View Record
+                    </button>
+                </div>
+
+                <!-- Category taxonomy -->
+                <template lwc:if={selectedCase.bottlerCategory}>
+                    <div class="taxonomy-row">
+                        <span class="taxonomy-chip">{selectedCase.bottlerCategory}</span>
+                        <template lwc:if={selectedCase.subCategory1}>
+                            <span class="taxonomy-arrow">›</span>
+                            <span class="taxonomy-chip taxonomy-chip-sub">{selectedCase.subCategory1}</span>
+                        </template>
+                        <template lwc:if={selectedCase.subCategory2}>
+                            <span class="taxonomy-arrow">›</span>
+                            <span class="taxonomy-chip taxonomy-chip-sub">{selectedCase.subCategory2}</span>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Core fields -->
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <span class="detail-field-label">Corrective Action</span>
+                        <span class={selectedActionClass}>{selectedCase.levelOfCorrectiveAction}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Date Issued</span>
+                        <span class="detail-field-value">{selectedCase.dateActionIssued}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Status</span>
+                        <span class={selectedStatusClass}>{selectedCase.status}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Status Reason</span>
+                        <span class="detail-field-value">{selectedCase.statusReason}</span>
+                    </div>
+                    <div class="detail-field">
+                        <span class="detail-field-label">Opened</span>
+                        <span class="detail-field-value">{selectedCase.createdDate}</span>
+                    </div>
+                    <template lwc:if={selectedCase.ownerName}>
+                        <div class="detail-field">
+                            <span class="detail-field-label">Case Owner</span>
+                            <span class="detail-field-value">{selectedCase.ownerName}</span>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Affected associate -->
+                <template lwc:if={hasAssociate}>
+                    <div class="section-label section-label-mt">
+                        <lightning-icon icon-name="utility:user" size="xx-small"></lightning-icon>
+                        Affected Associate
+                    </div>
+                    <div class="detail-grid">
+                        <template lwc:if={selectedCase.associateJobTitle}>
+                            <div class="detail-field">
+                                <span class="detail-field-label">Job Title</span>
+                                <span class="detail-field-value">{selectedCase.associateJobTitle}</span>
+                            </div>
+                        </template>
+                        <template lwc:if={selectedCase.associateMarketUnit}>
+                            <div class="detail-field">
+                                <span class="detail-field-label">Market Unit</span>
+                                <span class="detail-field-value">{selectedCase.associateMarketUnit}</span>
+                            </div>
+                        </template>
+                        <template lwc:if={selectedCase.associateLocation}>
+                            <div class="detail-field detail-field-wide">
+                                <span class="detail-field-label">Location</span>
+                                <span class="detail-field-value">{selectedCase.associateLocation}</span>
+                            </div>
+                        </template>
+                        <template lwc:if={selectedCase.associateStatus}>
+                            <div class="detail-field">
+                                <span class="detail-field-label">Associate Status</span>
+                                <span class={assocStatusClass}>{selectedCase.associateStatus}</span>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Notes -->
+                <template lwc:if={selectedCase.notesComments}>
+                    <div class="detail-notes-label">Notes / Comments</div>
+                    <div class="detail-notes">{selectedCase.notesComments}</div>
+                </template>
+            </div>
+        </template>
+
+        <!-- Click prompt -->
+        <template lwc:if={showClickPrompt}>
+            <div class="click-prompt">
+                <lightning-icon icon-name="utility:touch_action" size="x-small"></lightning-icon>
+                <span>Click a case to see full detail</span>
+            </div>
+        </template>
+
+    </template>
+</template>

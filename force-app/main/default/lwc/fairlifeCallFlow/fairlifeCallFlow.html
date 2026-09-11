@@ -1,0 +1,355 @@
+<template>
+  <div class="call-flow-wrapper">
+
+    <!-- Sticky header -->
+    <div class="flow-header">
+      <div class="header-left">
+        <img src={bottleImgSrc} alt="Fairlife Chocolate Milk" class="header-bottle-img" />
+        <div class="header-text">
+          <div class="header-title">Fairlife Consumer Care Guide</div>
+          <div class="header-case">Product Quality Variance &nbsp;·&nbsp; Chocolate Shakes (Chemical Taste) &nbsp;·&nbsp; Toronto, ON</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step progress pills -->
+    <template if:false={isStep6}>
+      <div class="step-track">
+        <div class={stepPillClass1}>
+          <div class="pill-dot">1</div>
+          <div class="pill-label">Open</div>
+        </div>
+        <div class="pill-line"></div>
+        <div class={stepPillClass2}>
+          <div class="pill-dot">2</div>
+          <div class="pill-label">Product</div>
+        </div>
+        <div class="pill-line"></div>
+        <div class={stepPillClass3}>
+          <div class="pill-dot">3</div>
+          <div class="pill-label">Purchase</div>
+        </div>
+        <div class="pill-line"></div>
+        <div class={stepPillClass4}>
+          <div class="pill-dot">4</div>
+          <div class="pill-label">Profile</div>
+        </div>
+        <div class="pill-line"></div>
+        <div class={stepPillClass5}>
+          <div class="pill-dot">5</div>
+          <div class="pill-label">Resolve</div>
+        </div>
+      </div>
+    </template>
+
+    <!-- ── Step 1: Open & Empathize ────────────────────────────────── -->
+    <template if:true={isStep1}>
+      <div class="flow-card">
+        <h2 class="step-headline">Listen &amp; acknowledge</h2>
+        <p class="step-subtext">Lead with care. Let the customer describe the issue in their own words before logging anything.</p>
+
+        <div class="script-block">
+          <div class="block-label">SAY THIS</div>
+          <p class="script-text">"Thank you for calling Coca‑Cola Consumer Care — my name is [Name] and I'm happy to help. I'm sorry to hear this wasn't the experience you expected. Can you walk me through what happened?"</p>
+        </div>
+
+        <div class="tip-block">
+          <div class="block-label">WHILE LISTENING</div>
+          <ul class="tip-list">
+            <li>Let them describe the taste fully — don't interrupt</li>
+            <li>Note exact words they use: chemical, metallic, sour, etc.</li>
+            <li>Confirm back: <em>"I completely understand — let me make a note of that."</em></li>
+          </ul>
+        </div>
+
+        <div class="field-group">
+          <lightning-textarea
+            label="Customer's description (in their own words)"
+            placeholder="e.g. 'tasted like chemicals', 'metallic aftertaste after first sip'..."
+            value={tasteDescription}
+            onchange={handleTasteDescription}
+            max-length="500">
+          </lightning-textarea>
+        </div>
+
+        <div class="nav-row">
+          <span></span>
+          <lightning-button variant="brand" label="Next: Product Details" onclick={nextStep}></lightning-button>
+        </div>
+      </div>
+    </template>
+
+    <!-- ── Step 2: Product Details ─────────────────────────────────── -->
+    <template if:true={isStep2}>
+      <div class="flow-card">
+        <h2 class="step-headline">Verify the product</h2>
+        <p class="step-subtext">Ask the customer to grab the bottle — this gives Quality the exact batch data they need to investigate.</p>
+
+        <div class="script-block">
+          <div class="block-label">SAY THIS</div>
+          <p class="script-text">"To make sure I log the right product, could you grab the bottle for a moment? I just need to check a couple of details — it'll only take a second."</p>
+        </div>
+
+        <div class="field-group">
+          <div class="two-col">
+            <lightning-input
+              type="text"
+              label="Product variant"
+              placeholder="e.g. Nutrition Plan Chocolate 30g Protein"
+              value={productVariant}
+              onchange={handleProductVariant}>
+            </lightning-input>
+            <lightning-input
+              type="text"
+              label="Size"
+              placeholder="e.g. 11.5 fl oz, 26 fl oz"
+              value={productSize}
+              onchange={handleProductSize}>
+            </lightning-input>
+          </div>
+          <div class="two-col">
+            <lightning-input
+              type="text"
+              label="Best-by date"
+              placeholder="MM/DD/YYYY"
+              value={bestByDate}
+              onchange={handleBestByDate}>
+            </lightning-input>
+            <lightning-input
+              type="text"
+              label="Lot code (bottom of bottle)"
+              placeholder="e.g. L2441B"
+              value={lotCode}
+              onchange={handleLotCode}>
+            </lightning-input>
+          </div>
+          <lightning-input
+            type="text"
+            label="UPC barcode (if visible)"
+            placeholder="12-digit number"
+            value={upcCode}
+            onchange={handleUpcCode}>
+          </lightning-input>
+        </div>
+
+        <div class="nav-row">
+          <lightning-button variant="neutral" label="Back" onclick={prevStep}></lightning-button>
+          <lightning-button variant="brand" label="Next: Purchase Info" onclick={nextStep}></lightning-button>
+        </div>
+      </div>
+    </template>
+
+    <!-- ── Step 3: Purchase & Storage ─────────────────────────────── -->
+    <template if:true={isStep3}>
+      <div class="flow-card">
+        <h2 class="step-headline">Where &amp; how it was purchased</h2>
+        <p class="step-subtext">Understanding the purchase context helps the team determine whether this is a distribution or storage issue.</p>
+
+        <div class="script-block">
+          <div class="block-label">SAY THIS</div>
+          <p class="script-text">"Sometimes temperature during transit can affect taste. Do you remember where you picked this up? And was it already cold when you bought it, or did you refrigerate it yourself at home?"</p>
+        </div>
+
+        <div class="field-group">
+          <div class="two-col">
+            <lightning-combobox
+              label="Where did they buy it?"
+              placeholder="Select..."
+              value={purchaseChannel}
+              options={channelOptions}
+              onchange={handlePurchaseChannel}>
+            </lightning-combobox>
+            <lightning-input
+              type="text"
+              label="Store name"
+              placeholder="e.g. Loblaws, Costco, Amazon.ca"
+              value={retailerName}
+              onchange={handleRetailerName}>
+            </lightning-input>
+          </div>
+          <lightning-input
+            type="text"
+            label="Neighbourhood / area (approximate)"
+            placeholder="e.g. North York, Scarborough"
+            value={purchaseLocation}
+            onchange={handlePurchaseLocation}>
+          </lightning-input>
+          <div class="two-col">
+            <lightning-combobox
+              label="Cold when purchased?"
+              placeholder="Select..."
+              value={wasColdAtPurchase}
+              options={yesNoOptions}
+              onchange={handleWasColdAtPurchase}>
+            </lightning-combobox>
+            <lightning-combobox
+              label="Refrigerated at home?"
+              placeholder="Select..."
+              value={storedCorrectly}
+              options={yesNoOptions}
+              onchange={handleStoredCorrectly}>
+            </lightning-combobox>
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <lightning-button variant="neutral" label="Back" onclick={prevStep}></lightning-button>
+          <lightning-button variant="brand" label="Next: Customer Profile" onclick={nextStep}></lightning-button>
+        </div>
+      </div>
+    </template>
+
+    <!-- ── Step 4: Consumer Profile ───────────────────────────────── -->
+    <template if:true={isStep4}>
+      <div class="flow-card">
+        <h2 class="step-headline">Understand their relationship with Fairlife</h2>
+        <p class="step-subtext">A few light questions help the team make this right and improve the product for customers like them.</p>
+
+        <div class="script-block">
+          <div class="block-label">SAY THIS</div>
+          <p class="script-text">"I really appreciate your patience — feedback like yours genuinely helps us improve. Just a couple of quick questions: how long have you been drinking Fairlife, and is this typically part of a workout routine or more of an everyday drink?"</p>
+        </div>
+
+        <div class="field-group">
+          <div class="two-col">
+            <lightning-combobox
+              label="How long a Fairlife customer?"
+              placeholder="Select..."
+              value={customerTenure}
+              options={tenureOptions}
+              onchange={handleCustomerTenure}>
+            </lightning-combobox>
+            <lightning-combobox
+              label="How often do they buy it?"
+              placeholder="Select..."
+              value={purchaseFrequency}
+              options={frequencyOptions}
+              onchange={handlePurchaseFrequency}>
+            </lightning-combobox>
+          </div>
+          <div class="two-col">
+            <lightning-combobox
+              label="Primary use occasion"
+              placeholder="Select..."
+              value={useOccasion}
+              options={occasionOptions}
+              onchange={handleUseOccasion}>
+            </lightning-combobox>
+            <lightning-combobox
+              label="How did they discover Fairlife?"
+              placeholder="Select..."
+              value={discoveryChannel}
+              options={discoveryOptions}
+              onchange={handleDiscoveryChannel}>
+            </lightning-combobox>
+          </div>
+          <lightning-combobox
+            label="Would they try Fairlife again once resolved?"
+            placeholder="Select..."
+            value={retentionLikelihood}
+            options={retentionOptions}
+            onchange={handleRetentionLikelihood}>
+          </lightning-combobox>
+        </div>
+
+        <div class="nav-row">
+          <lightning-button variant="neutral" label="Back" onclick={prevStep}></lightning-button>
+          <lightning-button variant="brand" label="Next: Resolve" onclick={nextStep}></lightning-button>
+        </div>
+      </div>
+    </template>
+
+    <!-- ── Step 5: Resolve & Close ────────────────────────────────── -->
+    <template if:true={isStep5}>
+      <div class="flow-card">
+        <h2 class="step-headline">Make it right</h2>
+        <p class="step-subtext">Close with warmth. Choose the appropriate resolution and add any final context for the team.</p>
+
+        <div class="script-block">
+          <div class="block-label">SAY THIS</div>
+          <p class="script-text">"I've logged everything and a quality report is being filed with the Fairlife team right now. We'd love to make this right — I'm going to send a replacement coupon to the email on file. You should see it within 24–48 hours. Is there anything else I can help with today?"</p>
+        </div>
+
+        <div class="resolution-section">
+          <div class="block-label">RESOLUTION OFFERED</div>
+          <div class="resolution-grid">
+            <div class={couponTileClass} onclick={handleResolutionCoupon}>
+              <div class="res-icon">🎟</div>
+              <div class="res-title">Replacement Coupon</div>
+              <div class="res-sub">Full-value · emailed 24–48h</div>
+            </div>
+            <div class={refundTileClass} onclick={handleResolutionRefund}>
+              <div class="res-icon">💳</div>
+              <div class="res-title">Refund</div>
+              <div class="res-sub">Original purchase price</div>
+            </div>
+            <div class={bothTileClass} onclick={handleResolutionBoth}>
+              <div class="res-icon">⭐</div>
+              <div class="res-title">Coupon + Apology Kit</div>
+              <div class="res-sub">Escalation · high-value customer</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <lightning-textarea
+            label="Additional notes (internal)"
+            placeholder="Anything not captured above — tone of call, escalation risk, specific feedback..."
+            value={agentNotes}
+            onchange={handleAgentNotes}
+            max-length="1000">
+          </lightning-textarea>
+        </div>
+
+        <div class="nav-row">
+          <lightning-button variant="neutral" label="Back" onclick={prevStep}></lightning-button>
+          <lightning-button
+            variant="success"
+            label="Submit &amp; Close Case"
+            onclick={handleSubmit}
+            disabled={isSubmitting}>
+          </lightning-button>
+        </div>
+
+        <template if:true={submitError}>
+          <div class="error-banner">{submitError}</div>
+        </template>
+      </div>
+    </template>
+
+    <!-- ── Step 6: Confirmation ───────────────────────────────────── -->
+    <template if:true={isStep6}>
+      <div class="flow-card flow-card--success">
+        <div class="success-circle">✓</div>
+        <h2 class="step-headline">Call wrapped up</h2>
+        <p class="step-subtext">Case updated · Quality report filed · Customer data captured</p>
+
+        <div class="summary-grid">
+          <div class="summary-row">
+            <span class="summary-label">Case</span>
+            <span class="summary-value">{caseNumber}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Product</span>
+            <span class="summary-value">{productVariant}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Lot Code</span>
+            <span class="summary-value">{lotCode}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Retailer</span>
+            <span class="summary-value">{retailerName}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Resolution</span>
+            <span class="summary-value">{resolutionLabel}</span>
+          </div>
+        </div>
+
+        <lightning-button variant="brand" label="Start New Call" onclick={resetFlow}></lightning-button>
+      </div>
+    </template>
+
+  </div>
+</template>
