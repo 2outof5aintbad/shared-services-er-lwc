@@ -29,38 +29,13 @@ A three-panel ER case intelligence interface:
 
 ---
 
-### 2. KO Refresh Analytics Dashboard (`koRefreshAnalyticsDashboard`)
-
-A standalone executive analytics LWC with four tabs:
-
-| Tab | Content |
-|-----|---------|
-| Executive Insights | KPI tiles, EOL clearance, logistics, ESG, NPS |
-| Regional EOL Drilldown | US SVG map by region, top 10 bottlers, product trends |
-| Exec Summary Brief | Q3 FY2024 scorecards, narrative bullets, mini-map |
-| Illinois — Reyes Detail | IL SVG map by county intensity, Reyes top 10 locations |
-
-All charts use Chart.js (static resource). All maps are inline SVG — no external map libraries required.
-
----
-
 ## Setup
-
-### CCBSS ER Case Search
 
 See **[DEPLOY.md](DEPLOY.md)** for a step-by-step guide using Salesforce Workbench (no CLI required, ~15 minutes).
 
 **Quick version (SF CLI):**
 ```bash
 sf project deploy start --manifest manifest/package-ccbss-er.xml --target-org <your-alias>
-```
-
-### KO Refresh Analytics Dashboard
-
-See **[KO_REFRESH_README.md](KO_REFRESH_README.md)**. Requires uploading Chart.js as a static resource first.
-
-```bash
-sf project deploy start --manifest manifest/package.xml --target-org <your-alias>
 ```
 
 ---
@@ -72,9 +47,7 @@ force-app/main/default/
 ├── lwc/
 │   ├── erCaseSearch/          # Main search + filter UI
 │   ├── erCaseSimilarity/      # Related cases panel
-│   ├── erCaseSummary/         # AI summary panel
-│   ├── koRefreshAnalyticsDashboard/  # Executive analytics
-│   └── ...
+│   └── erCaseSummary/         # AI summary panel
 ├── classes/
 │   ├── ERCaseController.cls   # Search, similarity, Einstein integration
 │   └── ERCaseDataSeeder.cls   # Seed script for demo data
@@ -84,8 +57,7 @@ force-app/main/default/
 └── permissionsets/CCBSS_ER_Access.permissionset-meta.xml
 
 manifest/
-├── package-ccbss-er.xml       # ER demo only (recommended for new installs)
-└── package.xml                # Full project
+└── package-ccbss-er.xml       # Full deployment manifest
 ```
 
 ---

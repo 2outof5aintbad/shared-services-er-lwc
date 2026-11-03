@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Retention_Likelihood__c</fullName>
-    <label>Retention Likelihood</label>
-    <type>Text</type>
-    <length>255</length>
-</CustomField>
